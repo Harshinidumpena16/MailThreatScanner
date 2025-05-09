@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block page_title %}Scan History{% endblock %}
+
+{% block content %}
+<div class="history-container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Scan History</h4>
+                    <p class="card-text">View and manage your previous email security scans</p>
+                    
+                    <div class="search-bar mb-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            </span>
+                            <input type="text" id="historySearchInput" class="form-control border-start-0" placeholder="Search by report ID, email subject or sender...">
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="historyTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Report ID</th>
+                                    <th>Subject</th>
+                                    <th>Sender</th>
+                                    <th>Threat Level</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                {% if scan_history %}
+                                    {% for item in scan_history %}
+                                    <tr>
+                                        <td>{{ item.date }}</td>
+                                        <td>{{ item.report_id }}</td>
+                                        <td>
+                                            {% if item.subject %}
+                                                {{ item.subject }}
+                                            {% else %}
+                                                <em>No Subject</em>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ item.sender }}</td>
+                                        <td>
+                                            {% if item.threat_level == "malicious" %}
+                                                <span class="badge bg-danger">High</span>
+                                            {% elif item.threat_level == "suspicious" %}
+                                                <span class="badge bg-warning text-dark">Medium</span>
+                                            {% else %}
+                                                <span class="badge bg-success">Low</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if item.status == "Completed" %}
+                                                <span class="status-badge completed">Completed</span>
+                                            {% else %}
+                                                <span class="status-badge in-progress">In Progress</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('report', report_id=item.report_id) }}" class="btn btn-sm btn-outline-primary">View Report</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4">
+                                            <div class="empty-state">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-inbox"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
+                                                <h5>No scan history found</h5>
+                                                <p>When you analyze emails, they will appear here</p>
+                                                <a href="{{ url_for('analysis') }}" class="btn btn-primary">Analyze an Email</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="noResultsMessage" class="d-none mt-4">
+                        <div class="empty-state">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <h5>No matching results</h5>
+                            <p>Try a different search term</p>
+                            <button id="clearSearchBtn" class="btn btn-outline-secondary">Clear Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/history.js') }}"></script>
+{% endblock %}

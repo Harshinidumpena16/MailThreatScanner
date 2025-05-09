@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block page_title %}Email Analysis{% endblock %}
+
+{% block content %}
+<div class="analysis-container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">Analyze Suspicious Email</h4>
+                    <p class="card-text">Upload email files for security analysis</p>
+                    
+                    <div class="mt-3">
+                        <form id="emailUploadForm" enctype="multipart/form-data">
+                            <div class="dropzone mb-3" id="emailDropzone">
+                                <div class="dropzone-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-upload-cloud"><polyline points="16 16 12 12 8 16"></polyline><line x1="12" y1="12" x2="12" y2="21"></line><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path><polyline points="16 16 12 12 8 16"></polyline></svg>
+                                </div>
+                                <div class="dropzone-text">
+                                    <p>Drag & Drop Email File</p>
+                                    <p class="dropzone-subtext">Supports .eml, .msg, .txt, .pdf formats</p>
+                                </div>
+                                <input type="file" id="emailFileInput" class="file-input" name="emailFile" accept=".eml,.msg,.txt,.pdf">
+                                <button type="button" id="selectFileBtn" class="btn btn-primary mt-3">Select File</button>
+                                <p class="mt-2 text-muted">Max file size: 25MB</p>
+                            </div>
+                            
+                            <div id="selectedFileInfo" class="d-none mb-3">
+                                <div class="selected-file">
+                                    <div class="d-flex align-items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file me-2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                                        <div>
+                                            <span id="selectedFileName">filename.eml</span>
+                                            <span id="selectedFileSize" class="text-muted d-block">(12KB)</span>
+                                        </div>
+                                    </div>
+                                    <button type="button" id="removeFileBtn" class="btn btn-sm btn-outline-danger">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <button type="button" id="startAnalysisBtn" class="btn btn-primary float-end" disabled>Start Analysis</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Analysis Progress Overlay (hidden by default) -->
+    <div id="analysisProgress" class="analysis-progress d-none">
+        <div class="analysis-progress-content">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h4>Analyzing Email</h4>
+            <div class="progress mt-3">
+                <div id="analysisProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+            </div>
+            <p id="analysisStatusText" class="mt-2">Starting analysis...</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/analysis.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,523 @@
+{% extends "base.html" %}
+
+{% block page_title %}Email Analysis Report{% endblock %}
+
+{% block head_extra %}
+<!-- Add print-specific styles for the report -->
+<style>
+    @media print {
+        body {
+            padding: 0;
+            margin: 0;
+            background: white;
+        }
+        
+        .wrapper {
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
+        
+        #sidebar, .content-header, .report-actions, footer, header, .no-print {
+            display: none !important;
+        }
+        
+        .content {
+            margin-left: 0;
+            padding: 0;
+            width: 100%;
+        }
+        
+        .container-fluid {
+            padding: 0;
+            width: 100%;
+        }
+        
+        .report-container {
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
+        
+        .card {
+            border: none;
+            box-shadow: none;
+        }
+        
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <!-- Report Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card report-header">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="card-title mb-0">Email Analysis Report</h4>
+                        <span class="badge rounded-pill bg-primary">Report ID: {{ report.report_id }}</span>
+                    </div>
+                    
+                    <div class="row report-meta">
+                        <div class="col-md-6">
+                            <div class="report-meta-item">
+                                <span class="report-meta-label">Subject:</span>
+                                <span>{{ report.subject }}</span>
+                            </div>
+                            <div class="report-meta-item">
+                                <span class="report-meta-label">Sender:</span>
+                                <span>{{ report.sender }}</span>
+                            </div>
+                            <div class="report-meta-item">
+                                <span class="report-meta-label">Recipient:</span>
+                                <span>{{ report.recipient }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <div class="report-meta-item">
+                                <span class="report-meta-label">Date Received:</span>
+                                <span>{{ report.date }}</span>
+                            </div>
+                            <div class="report-meta-item">
+                                <span class="report-meta-label">Analysis Time:</span>
+                                <span>{{ report.timestamp }}</span>
+                            </div>
+                            <div class="report-meta-item">
+                                <span class="report-meta-label">Status:</span>
+                                <span class="status-badge completed">{{ report.status }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Final Verdict -->
+                    <div class="verdict-card {{ report.verdict.level if report.verdict else 'safe' }}">
+                        <div class="verdict-icon {{ report.verdict.level if report.verdict else 'safe' }}">
+                            {% if report.verdict and report.verdict.level == 'malicious' %}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-alert-triangle"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                            {% elif report.verdict and report.verdict.level == 'suspicious' %}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-alert-circle"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                            {% else %}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="verdict-score {{ report.verdict.level if report.verdict else 'safe' }}">
+                            {{ report.verdict.score if report.verdict else '0' }}
+                        </div>
+                        
+                        <h3 class="verdict-title {{ report.verdict.level if report.verdict else 'safe' }}">
+                            {{ report.verdict.verdict if report.verdict else 'Safe' }}
+                        </h3>
+                        
+                        <p class="verdict-details">
+                            {{ report.verdict.details if report.verdict else 'This email appears to be legitimate and safe.' }}
+                        </p>
+                        
+                        {% if report.verdict and report.verdict.recommendations %}
+                            <div class="recommendations-list">
+                                <h5>Recommendations:</h5>
+                                <ul class="list-unstyled">
+                                    {% for recommendation in report.verdict.recommendations %}
+                                        <li>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                                            {{ recommendation }}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Authentication Results -->
+    {% if report.auth_results and 'authentication' not in exclude_sections %}
+    <div class="row results-section">
+        <div class="col-12">
+            <div class="card results-card">
+                <div class="card-header">
+                    <div class="section-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shield"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        <h5 class="mb-0">Email Authentication</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="result-item">
+                        <h6>
+                            SPF (Sender Policy Framework)
+                            <span class="result-status {{ report.auth_results.spf.status }}">
+                                {{ report.auth_results.spf.status|capitalize }}
+                            </span>
+                        </h6>
+                        <div class="result-details">
+                            {{ report.auth_results.spf.details }}
+                        </div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <h6>
+                            DKIM (DomainKeys Identified Mail)
+                            <span class="result-status {{ report.auth_results.dkim.status }}">
+                                {{ report.auth_results.dkim.status|capitalize }}
+                            </span>
+                        </h6>
+                        <div class="result-details">
+                            {{ report.auth_results.dkim.details }}
+                        </div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <h6>
+                            DMARC (Domain-based Message Authentication)
+                            <span class="result-status {{ report.auth_results.dmarc.status }}">
+                                {{ report.auth_results.dmarc.status|capitalize }}
+                            </span>
+                        </h6>
+                        <div class="result-details">
+                            {{ report.auth_results.dmarc.details }}
+                        </div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <h6>
+                            Overall Authentication Status
+                            <span class="result-status {{ report.auth_results.overall.status }}">
+                                {{ report.auth_results.overall.status|capitalize }}
+                            </span>
+                        </h6>
+                        <div class="result-details">
+                            {{ report.auth_results.overall.details }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Sender Information -->
+    {% if report.reputation_results and 'reputation' not in exclude_sections %}
+    <div class="row results-section">
+        <div class="col-12">
+            <div class="card results-card">
+                <div class="card-header">
+                    <div class="section-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        <h5 class="mb-0">Sender Information</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- IP Address Information -->
+                    <div class="result-item">
+                        <h6>IP Address</h6>
+                        {% if report.reputation_results.ip.no_ip_found %}
+                            <div class="result-details">
+                                No IP address information available
+                            </div>
+                        {% else %}
+                            <div class="result-details">
+                                {% if report.reputation_results.ip.ip %}
+                                    <strong>IP:</strong> {{ report.reputation_results.ip.ip }}<br>
+                                {% endif %}
+                                
+                                <!-- For legitimate emails, the IP is displayed without risk labels -->
+                                {% if report.verdict and report.verdict.level == 'safe' %}
+                                    <span class="badge bg-success">Safe</span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                        <div class="result-details">
+                            {% if report.reputation_results.geo.country != "Unknown" %}
+                                <strong>Country:</strong> {{ report.reputation_results.geo.country }}<br>
+                                <strong>City:</strong> {{ report.reputation_results.geo.city }}
+                            {% else %}
+                                Location information unavailable
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- URL Scanning Results -->
+    {% if report.url_results and 'urls' not in exclude_sections %}
+    <div class="row results-section">
+        <div class="col-12">
+            <div class="card results-card">
+                <div class="card-header">
+                    <div class="section-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                        <h5 class="mb-0">URL Analysis</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="result-item">
+                        <h6>URL Summary</h6>
+                        <div class="result-details">
+                            <strong>URLs Found:</strong> {{ report.url_results.count }}<br>
+                            <strong>Safe URLs:</strong> {{ report.url_results.risk_summary.safe }}<br>
+                            <strong>Suspicious URLs:</strong> {{ report.url_results.risk_summary.suspicious }}<br>
+                            <strong>Malicious URLs:</strong> {{ report.url_results.risk_summary.malicious }}<br>
+                            <strong>Overall Risk:</strong> 
+                            <span class="risk-{{ 'safe' if report.url_results.overall_risk == 'low' else ('suspicious' if report.url_results.overall_risk == 'medium' else 'malicious') }}">
+                                {{ report.url_results.overall_risk|capitalize }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- URL List -->
+                    {% if report.url_results.urls %}
+                        <div class="url-list">
+                            <h6>Detected URLs</h6>
+                            {% for url in report.url_results.urls %}
+                                <div class="url-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="text-truncate" style="max-width: 80%;">
+                                            <strong>{{ url.url }}</strong>
+                                        </div>
+                                        <span class="url-risk risk-{{ url.risk }}">
+                                            {{ url.risk|capitalize }}
+                                        </span>
+                                    </div>
+                                    <div class="mt-2">
+                                        <strong>Domain:</strong> {{ url.domain }}<br>
+                                        <strong>Category:</strong> {{ url.category|capitalize }}<br>
+                                        <strong>Details:</strong> {{ url.details }}<br>
+                                        {% if url.is_shortened %}
+                                            <strong>URL Shortener:</strong> Yes (Original destination unknown)
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Attachment Analysis Results -->
+    {% if report.attachment_results and 'attachments' not in exclude_sections %}
+    <div class="row results-section">
+        <div class="col-12">
+            <div class="card results-card">
+                <div class="card-header">
+                    <div class="section-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-paperclip"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                        <h5 class="mb-0">Attachment Analysis</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="result-item">
+                        <h6>Attachment Summary</h6>
+                        <div class="result-details">
+                            <strong>Attachments Found:</strong> {{ report.attachment_results.count }}<br>
+                            <strong>Safe Attachments:</strong> {{ report.attachment_results.risk_summary.safe }}<br>
+                            <strong>Suspicious Attachments:</strong> {{ report.attachment_results.risk_summary.suspicious }}<br>
+                            <strong>Malicious Attachments:</strong> {{ report.attachment_results.risk_summary.malicious }}<br>
+                            <strong>Overall Risk:</strong> 
+                            <span class="risk-{{ 'safe' if report.attachment_results.overall_risk == 'low' else ('suspicious' if report.attachment_results.overall_risk == 'medium' else 'malicious') }}">
+                                {{ report.attachment_results.overall_risk|capitalize }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Attachment List -->
+                    {% if report.attachment_results.attachments %}
+                        <div class="attachment-list">
+                            <h6>Analyzed Attachments</h6>
+                            {% for attachment in report.attachment_results.attachments %}
+                                <div class="attachment-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <strong>{{ attachment.filename }}</strong>
+                                        </div>
+                                        <span class="attachment-risk risk-{{ attachment.risk }}">
+                                            {{ attachment.risk|capitalize }}
+                                        </span>
+                                    </div>
+                                    <div class="mt-2">
+                                        <strong>Type:</strong> {{ attachment.content_type }}<br>
+                                        <strong>Category:</strong> {{ attachment.category|capitalize }}<br>
+                                        <strong>Size:</strong> {{ attachment.size }} bytes<br>
+                                        <strong>Hash:</strong> {{ attachment.hash }}<br>
+                                        <strong>Details:</strong> {{ attachment.details }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- QR Code Analysis Results -->
+    {% if report.qr_results and report.qr_results.count > 0 and 'qr_codes' not in exclude_sections %}
+    <div class="row results-section">
+        <div class="col-12">
+            <div class="card results-card">
+                <div class="card-header">
+                    <div class="section-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-grid"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                        <h5 class="mb-0">QR Code Analysis</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="result-item">
+                        <h6>QR Code Summary</h6>
+                        <div class="result-details">
+                            <strong>QR Codes Found:</strong> {{ report.qr_results.count }}<br>
+                            <strong>Safe QR Codes:</strong> {{ report.qr_results.risk_summary.safe }}<br>
+                            <strong>Suspicious QR Codes:</strong> {{ report.qr_results.risk_summary.suspicious }}<br>
+                            <strong>Malicious QR Codes:</strong> {{ report.qr_results.risk_summary.malicious }}<br>
+                            <strong>Overall Risk:</strong> 
+                            <span class="risk-{{ 'safe' if report.qr_results.overall_risk == 'low' else ('suspicious' if report.qr_results.overall_risk == 'medium' else 'malicious') }}">
+                                {{ report.qr_results.overall_risk|capitalize }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- QR Code List -->
+                    {% if report.qr_results.qr_codes %}
+                        <div class="qr-list">
+                            <h6>Detected QR Codes</h6>
+                            {% for qr in report.qr_results.qr_codes %}
+                                <div class="qr-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <strong>Found in: {{ qr.attachment_filename }}</strong>
+                                        </div>
+                                        <span class="qr-risk risk-{{ qr.risk }}">
+                                            {{ qr.risk|capitalize }}
+                                        </span>
+                                    </div>
+                                    <div class="mt-2">
+                                        <strong>Content Type:</strong> {{ qr.content_type|capitalize }}<br>
+                                        <strong>Content:</strong> 
+                                        <div class="text-truncate" style="max-width: 100%;">
+                                            {{ qr.content }}
+                                        </div>
+                                        <strong>Details:</strong> {{ qr.details }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Audio Analysis Results -->
+    {% if report.audio_results and report.audio_results.count > 0 and 'audio' not in exclude_sections %}
+    <div class="row results-section">
+        <div class="col-12">
+            <div class="card results-card">
+                <div class="card-header">
+                    <div class="section-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-volume-2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                        <h5 class="mb-0">Audio Analysis</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="result-item">
+                        <h6>Audio Summary</h6>
+                        <div class="result-details">
+                            <strong>Audio Files Found:</strong> {{ report.audio_results.count }}<br>
+                            <strong>Safe Audio Files:</strong> {{ report.audio_results.risk_summary.safe }}<br>
+                            <strong>Suspicious Audio Files:</strong> {{ report.audio_results.risk_summary.suspicious }}<br>
+                            <strong>Malicious Audio Files:</strong> {{ report.audio_results.risk_summary.malicious }}<br>
+                            <strong>Overall Risk:</strong> 
+                            <span class="risk-{{ 'safe' if report.audio_results.overall_risk == 'low' else ('suspicious' if report.audio_results.overall_risk == 'medium' else 'malicious') }}">
+                                {{ report.audio_results.overall_risk|capitalize }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Audio File List -->
+                    {% if report.audio_results.audio_files %}
+                        <div class="audio-list">
+                            <h6>Detected Audio Files</h6>
+                            {% for audio in report.audio_results.audio_files %}
+                                <div class="audio-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <strong>{{ audio.filename }}</strong>
+                                        </div>
+                                        <span class="audio-risk risk-{{ audio.risk }}">
+                                            {{ audio.risk|capitalize }}
+                                        </span>
+                                    </div>
+                                    <div class="mt-2">
+                                        <strong>Duration:</strong> {{ audio.duration }} seconds<br>
+                                        <strong>Size:</strong> {{ audio.size }} bytes<br>
+                                        {% if audio.transcription %}
+                                            <strong>Transcription:</strong> 
+                                            <div class="audio-transcription">
+                                                {{ audio.transcription }}
+                                            </div>
+                                        {% endif %}
+                                        <strong>Details:</strong> {{ audio.details }}
+                                        {% if audio.keywords %}
+                                            <div class="mt-2">
+                                                <strong>Suspicious Keywords:</strong>
+                                                <div class="keywords-container">
+                                                    {% for keyword in audio.keywords %}
+                                                        <span class="keyword-badge">{{ keyword }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- No Threat Detection Trends and Threat Distribution sections as requested -->
+    
+    {% if not print_view %}
+    <div class="row mt-4 mb-4 no-print">
+        <div class="col-12 d-flex justify-content-center">
+            <button type="button" class="btn btn-primary me-2" onclick="window.print()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-printer me-1"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                Print Report
+            </button>
+            <a href="{{ url_for('report', report_id=report.report_id) }}" class="btn btn-outline-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left me-1"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                Back to Full Report
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% if print_view %}
+<script>
+    // Automatically trigger print dialog when page loads
+    window.onload = function() {
+        window.print();
+    };
+</script>
+{% endif %}
+{% endblock %}

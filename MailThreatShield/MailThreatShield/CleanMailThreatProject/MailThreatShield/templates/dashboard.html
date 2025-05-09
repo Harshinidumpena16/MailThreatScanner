@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="section-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-book"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                        <h5 class="mb-0">Quick Start Guide</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body text-center p-4">
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-upload text-primary"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                    </div>
+                                    <h5>1. Upload an Email</h5>
+                                    <p class="text-muted">
+                                        Go to Email Analysis and upload a suspicious email file (.eml, .msg, .txt)
+                                        or paste the raw email content.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 mb-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body text-center p-4">
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search text-primary"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                    </div>
+                                    <h5>2. Analyze the Email</h5>
+                                    <p class="text-muted">
+                                        Click "Start Analysis" to run comprehensive security checks on the email, including authentication, URLs, and attachments.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 mb-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body text-center p-4">
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text text-primary"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                                    </div>
+                                    <h5>3. Review the Report</h5>
+                                    <p class="text-muted">
+                                        Review the comprehensive security report with threat assessment and recommendations for safe handling.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-2">
+                        <a href="{{ url_for('analysis') }}" class="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle me-2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                            Start Analyzing an Email
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stats-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">Total Scans</h5>
+                            <h2 class="stats-number" id="total-scans-value">{{ metrics.total_scans.value }}</h2>
+                        </div>
+                        <div class="stats-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        </div>
+                    </div>
+                    <p class="stats-change {{ 'positive' if metrics.total_scans.change >= 0 else 'negative' }}" id="total-scans-change">
+                        {% if metrics.total_scans.change >= 0 %}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                        {% else %}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                        {% endif %}
+                        {{ metrics.total_scans.change|abs }}% this week
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stats-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">Threats Detected</h5>
+                            <h2 class="stats-number" id="threats-detected-value">{{ metrics.threats_detected.value }}</h2>
+                        </div>
+                        <div class="stats-icon warning">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-alert-triangle"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                        </div>
+                    </div>
+                    <p class="stats-change {{ 'positive' if metrics.threats_detected.change >= 0 else 'negative' }}" id="threats-detected-change">
+                        {% if metrics.threats_detected.change >= 0 %}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                        {% else %}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                        {% endif %}
+                        {{ metrics.threats_detected.change|abs }}% this week
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stats-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">Malicious URLs</h5>
+                            <h2 class="stats-number" id="malicious-urls-value">{{ metrics.malicious_urls.value }}</h2>
+                        </div>
+                        <div class="stats-icon danger">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                        </div>
+                    </div>
+                    <p class="stats-change {{ 'positive' if metrics.malicious_urls.change >= 0 else 'negative' }}" id="malicious-urls-change">
+                        {% if metrics.malicious_urls.change >= 0 %}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                        {% else %}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                        {% endif %}
+                        {{ metrics.malicious_urls.change|abs }}% this week
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stats-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">Auth Failures</h5>
+                            <h2 class="stats-number" id="auth-failures-value">{{ metrics.auth_failures.value }}</h2>
+                        </div>
+                        <div class="stats-icon info">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shield"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        </div>
+                    </div>
+                    <p class="stats-change {{ 'positive' if metrics.auth_failures.change >= 0 else 'negative' }}" id="auth-failures-change">
+                        {% if metrics.auth_failures.change >= 0 %}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                        {% else %}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                        {% endif %}
+                        {{ metrics.auth_failures.change|abs }}% this week
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Threat Detection Trends and Threat Distribution sections removed as per user request -->
+
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <div class="d-flex align-items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info me-2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        <h5 class="mb-0">Getting Started with MailThreat Scanner</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="guide-section mb-4">
+                                <h5 class="guide-title">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-mail me-2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                    How to Analyze an Email
+                                </h5>
+                                <ol class="guide-steps">
+                                    <li>Go to the <a href="{{ url_for('analysis') }}">Email Analysis</a> page</li>
+                                    <li>Upload a suspicious email file (.eml, .msg) by dragging it to the upload area or clicking to browse</li>
+                                    <li>Wait for the analysis to complete (typically 5-10 seconds)</li>
+                                    <li>Review the comprehensive threat report to identify potential security risks</li>
+                                </ol>
+                            </div>
+                            
+                            <div class="guide-section">
+                                <h5 class="guide-title">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shield me-2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                                    Security Features
+                                </h5>
+                                <ul class="guide-features">
+                                    <li><strong>Authentication Checks:</strong> SPF, DKIM, and DMARC verification</li>
+                                    <li><strong>URL Scanning:</strong> Detection of malicious links and typosquatting domains</li>
+                                    <li><strong>Attachment Analysis:</strong> Identification of suspicious and malicious files</li>
+                                    <li><strong>QR Code Detection:</strong> Scanning of QR codes in image attachments</li>
+                                    <li><strong>Audio Analysis:</strong> Transcription and analysis of audio files for vishing attempts</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="guide-section mb-4">
+                                <h5 class="guide-title">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text me-2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                                    Understanding Reports
+                                </h5>
+                                <p>Each analysis report includes:</p>
+                                <ul class="guide-features">
+                                    <li><strong>Email Headers:</strong> Information about sender, recipient, and email routing</li>
+                                    <li><strong>Reputation Analysis:</strong> Evaluation of sender email, domain, and IP address</li>
+                                    <li><strong>Content Analysis:</strong> Detection of phishing indicators, suspicious language, and social engineering tactics</li>
+                                    <li><strong>Detailed Breakdowns:</strong> Comprehensive analysis of each threat vector</li>
+                                    <li><strong>Customizable Reports:</strong> Option to generate tailored reports with specific sections</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="guide-section">
+                                <h5 class="guide-title">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-help-circle me-2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                                    Tips for Best Results
+                                </h5>
+                                <ul class="guide-tips">
+                                    <li>Always analyze suspicious emails before interacting with links or attachments</li>
+                                    <li>Check the <a href="{{ url_for('history') }}">Scan History</a> page to review previous analyses</li>
+                                    <li>For detailed explanations of threat types, visit the <a href="{{ url_for('help') }}">Help & Support</a> page</li>
+                                    <li>Customize your experience in the <a href="{{ url_for('settings') }}">Settings</a> page</li>
+                                    <li>For best results, use original email files (.eml or .msg) rather than forwarded messages</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Dashboard initialized - Threat trends and distribution charts disabled');
+        
+        // Set up periodic refresh of metrics
+        setInterval(refreshMetrics, 5000); // Update metrics every 5 seconds
+    });
+    
+    // Function to refresh metrics via AJAX
+    function refreshMetrics() {
+        fetch('/api/metrics')
+            .then(response => response.json())
+            .then(data => {
+                // Update Total Scans
+                document.getElementById('total-scans-value').textContent = data.total_scans.value;
+                updateChangeDisplay('total-scans-change', data.total_scans.change);
+                
+                // Update Threats Detected
+                document.getElementById('threats-detected-value').textContent = data.threats_detected.value;
+                updateChangeDisplay('threats-detected-change', data.threats_detected.change);
+                
+                // Update Malicious URLs
+                document.getElementById('malicious-urls-value').textContent = data.malicious_urls.value;
+                updateChangeDisplay('malicious-urls-change', data.malicious_urls.change);
+                
+                // Update Auth Failures
+                document.getElementById('auth-failures-value').textContent = data.auth_failures.value;
+                updateChangeDisplay('auth-failures-change', data.auth_failures.change);
+                
+                console.log('Dashboard metrics refreshed');
+            })
+            .catch(error => console.error('Error refreshing metrics:', error));
+    }
+    
+    // Helper function to update change indicator
+    function updateChangeDisplay(elementId, changeValue) {
+        const element = document.getElementById(elementId);
+        
+        // Update class based on positive/negative change
+        if (changeValue >= 0) {
+            element.className = 'stats-change positive';
+            element.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                ${Math.abs(changeValue)}% this week
+            `;
+        } else {
+            element.className = 'stats-change negative';
+            element.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                ${Math.abs(changeValue)}% this week
+            `;
+        }
+    }
+</script>
+{% endblock %}
